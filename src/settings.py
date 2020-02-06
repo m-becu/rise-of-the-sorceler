@@ -17,8 +17,10 @@ TITLE = "Rise Of The Sorceler"
 FPS = 60
 TILE_SIZE = 64
 
+SPRITESHEET = 'roguelikeChar_transparent.png'
+
 # Player settings
-PLAYER_ASSET = ''
+PLAYER_SPRITE = 0
 
 # Colors
 WHITE = (255, 255, 255)

@@ -17,7 +17,7 @@ try:
     # Game related
     import pygame as pg
     from settings import *
-    from entities import Player
+    from entities import Player, Spritesheet, Camera
 
 except ImportError as err:
     print("Couldn't load module. {err}")
@@ -39,13 +39,15 @@ class Game:
         game_folder = path.dirname(__file__)
         assets_folder = path.join(game_folder, 'assets')
 
-        self.player_asset = pg.image.load(path.join(assets_folder, PLAYER_ASSET)).convert_alpha()
+        self.spritesheet = Spritesheet(path.join(assets_folder, SPRITESHEET))
 
     def new(self):
         # Initialization and setup for a new game
         self.all_sprites = pg.sprite.Group()
 
         self.player = Player(self, 5, 5)
+
+        self.camera = Camera(WIDTH, HEIGHT)
 
     def run(self):
         # Game loop
@@ -62,7 +64,8 @@ class Game:
 
     def update(self):
         # Update portion of the game loop
-        pass
+        self.all_sprites.update()
+        self.camera.update(self.player)
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILE_SIZE):
@@ -74,6 +77,10 @@ class Game:
         # Draw stuff here
         self.screen.fill(BG_COLOR)
         self.draw_grid()
+
+        for sprite in self.all_sprites:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+
         pg.display.flip()
 
     def events(self):
