@@ -8,6 +8,16 @@
 # Made by An0rak                                    #
 # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+try:
+    # System
+    import sys
+    # Game related
+    import pygame as pg
+
+except ImportError as err:
+    print("Couldn't load module. {err}")
+    sys.exit(2)
+
 # Game settings
 WIDTH = 12 * 64 + 1
 HEIGHT = 9 * 64 + 1
@@ -21,6 +31,8 @@ SPRITESHEET = 'roguelikeChar_transparent.png'
 
 # Player settings
 PLAYER_SPRITE = 0
+PLAYER_SPEED = 300
+PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 
 # Colors
 WHITE = (255, 255, 255)
