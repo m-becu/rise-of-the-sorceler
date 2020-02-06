@@ -17,6 +17,7 @@ try:
     # Game related
     import pygame as pg
     from settings import *
+    from tilemap import TiledMap
     from entities import Player, Spritesheet, Camera
 
 except ImportError as err:
@@ -31,13 +32,18 @@ class Game:
         self.clock = pg.time.Clock()
 
         pg.display.set_caption(TITLE)
-        pg.key.set_repeat(500, 100)
+        # pg.key.set_repeat(500, 100)
 
         self.load_data()
 
     def load_data(self):
         game_folder = path.dirname(__file__)
         assets_folder = path.join(game_folder, 'assets')
+        maps_folder = path.join(game_folder, 'maps')
+
+        self.map = TiledMap(path.join(maps_folder, 'level0.tmx'))
+        self.map_img = self.map.make_map()
+        self.map_rect = self.map_img.get_rect()
 
         self.spritesheet = Spritesheet(path.join(assets_folder, SPRITESHEET))
 
@@ -47,7 +53,7 @@ class Game:
 
         self.player = Player(self, 5, 5)
 
-        self.camera = Camera(WIDTH, HEIGHT)
+        self.camera = Camera(self.map.width, self.map.height)
 
     def run(self):
         # Game loop
@@ -76,7 +82,8 @@ class Game:
     def draw(self):
         # Draw stuff here
         self.screen.fill(BG_COLOR)
-        self.draw_grid()
+        # self.draw_grid()
+        self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
 
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))

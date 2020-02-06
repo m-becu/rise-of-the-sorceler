@@ -19,18 +19,18 @@ except ImportError as err:
     sys.exit(2)
 
 # Game settings
-WIDTH = 12 * 64 + 1
-HEIGHT = 9 * 64 + 1
+WIDTH = 800
+HEIGHT = 600
 
 TITLE = "Rise Of The Sorceler"
 
 FPS = 60
 TILE_SIZE = 64
 
-SPRITESHEET = 'roguelikeChar_transparent.png'
+SPRITESHEET = 'charset.png'
 
 # Player settings
-PLAYER_SPRITE = 0
+PLAYER_SPRITE = 25
 PLAYER_SPEED = 300
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 
@@ -44,5 +44,6 @@ RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 BROWN = (100, 55, 5)
 CYAN = (0, 255, 255)
+DEEP_PURPLE = (71, 45, 50)
 
-BG_COLOR = DARK_GREY
+BG_COLOR = DEEP_PURPLE

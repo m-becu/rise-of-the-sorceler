@@ -50,8 +50,8 @@ class Spritesheet:
         self.parse_images()
 
     def parse_images(self):
-        for x in range(int(self.spritesheet.get_width() / self.tileSize)):
-            for y in range(int(self.spritesheet.get_height() / self.tileSize)):
+        for y in range(int(self.spritesheet.get_height() / self.tileSize)):
+            for x in range(int(self.spritesheet.get_width() / self.tileSize)):
                 offset_x = x * self.tileSize
                 offset_y = y * self.tileSize
 
@@ -59,8 +59,6 @@ class Spritesheet:
                     offset_x += self.gap * x
                 if y > 0:
                     offset_y += self.gap * y
-
-                print(offset_x, offset_y)
 
                 self.tiles.append(self.make_image(offset_x, offset_y))
 
@@ -81,7 +79,7 @@ class Player(pg.sprite.Sprite):
 
         self.game = game
         self.image = self.game.spritesheet.get_sprite(PLAYER_SPRITE).convert()
-        self.image.set_colorkey(WHITE)
+        self.image.set_colorkey(BLACK)
 
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH / 2, HEIGHT / 2)
