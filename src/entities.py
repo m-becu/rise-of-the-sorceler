@@ -13,9 +13,11 @@ try:
     import sys
     # Game related
     import pygame as pg
+    import pytweening as tween
     from settings import *
     from tilemap import collide_hit_rect
 
+    # Aliases
     vec = pg.math.Vector2
 
 except ImportError as err:
@@ -133,6 +135,35 @@ class Obstacle(pg.sprite.Sprite):
 
         self.rect.x = x
         self.rect.y = y
+
+class Item(pg.sprite.Sprite):
+    def __init__(self, game, pos, type):
+        self._layer = ITEMS_LAYER
+        self.groups = game.all_sprites, game.items
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        
+        self.image = game.item_images[type]
+        self.rect = self.image.get_rect()
+        self.type = type
+
+        self.pos = pos
+        self.rect.center = pos
+
+        self.tween = tween.easeInOutSine
+        self.step = 0
+        self.dir = 1
+
+    def update(self):
+        # Bobbing motion
+        # The 0.5 shifting halfway the item because it's moving up and down starting from middle
+        offset = BOB_RANGE * (self.tween(self.step / BOB_RANGE) - 0.5)
+        self.rect.centery = self.pos.y + offset * self.dir
+        self.step += BOB_SPEED
+
+        if self.step > BOB_RANGE:
+            self.step = 0
+            self.dir *= -1
 
 class Camera:
     def __init__(self, width, height):

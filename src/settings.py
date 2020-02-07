@@ -25,14 +25,30 @@ HEIGHT = 600
 TITLE = "Rise Of The Sorceler"
 
 FPS = 60
-TILE_SIZE = 32
+TILE_SIZE = 64
 
 SPRITESHEET = 'charset.png'
+
+BOB_RANGE = 15
+BOB_SPEED = 0.4
 
 # Player settings
 PLAYER_SPRITE = 25
 PLAYER_SPEED = 300
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
+
+# Items
+ITEM_SPRITES = {
+    'pickaxe': 902
+}
+
+# Layers
+WALL_LAYER = 1
+PLAYER_LAYER = 2
+ITEMS_LAYER = 1
+
+# Fonts
+MAIN_FONT = 'kenney_pixel.ttf'
 
 # Colors
 WHITE = (255, 255, 255)
