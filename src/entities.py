@@ -25,24 +25,33 @@ except ImportError as err:
     sys.exit(2)
 
 def collide_with_group(sprite, group, dir):
-        if dir =='x':
-            hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
-            if hits:
-                if hits[0].rect.centerx > sprite.hit_rect.centerx:
-                    sprite.pos.x = hits[0].rect.left - sprite.hit_rect.width / 2
-                if hits[0].rect.centerx < sprite.hit_rect.centerx:
-                    sprite.pos.x = hits[0].rect.right + sprite.hit_rect.width / 2
-                sprite.vel.x = 0
-                sprite.hit_rect.centerx = sprite.pos.x
-        if dir =='y':
-            hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
-            if hits:
-                if hits[0].rect.centery > sprite.hit_rect.centery:
-                    sprite.pos.y = hits[0].rect.top - sprite.hit_rect.height / 2
-                if hits[0].rect.centery < sprite.hit_rect.centery:
-                    sprite.pos.y = hits[0].rect.bottom + sprite.hit_rect.height / 2
-                sprite.vel.y = 0
-                sprite.hit_rect.centery = sprite.pos.y
+    if sprite.game.noclip:
+        return
+        
+    hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
+    for hit in hits:
+        if isinstance(hit, Entity):
+            if hit.type == 'door':
+                if hit.open:
+                    return
+
+    if dir =='x':
+        if hits:
+            if hits[0].rect.centerx > sprite.hit_rect.centerx:
+                sprite.pos.x = hits[0].rect.left - sprite.hit_rect.width / 2
+            if hits[0].rect.centerx < sprite.hit_rect.centerx:
+                sprite.pos.x = hits[0].rect.right + sprite.hit_rect.width / 2
+            sprite.vel.x = 0
+            sprite.hit_rect.centerx = sprite.pos.x
+
+    if dir =='y':
+        if hits:
+            if hits[0].rect.centery > sprite.hit_rect.centery:
+                sprite.pos.y = hits[0].rect.top - sprite.hit_rect.height / 2
+            if hits[0].rect.centery < sprite.hit_rect.centery:
+                sprite.pos.y = hits[0].rect.bottom + sprite.hit_rect.height / 2
+            sprite.vel.y = 0
+            sprite.hit_rect.centery = sprite.pos.y
 
 class Spritesheet:
     def __init__(self, filename, tileSize=16, gap=1):
@@ -116,9 +125,11 @@ class Player(pg.sprite.Sprite):
 
         self.hit_rect.centerx = self.pos.x
         collide_with_group(self, self.game.walls, 'x')
+        collide_with_group(self, self.game.entities, 'x')
 
         self.hit_rect.centery = self.pos.y
         collide_with_group(self, self.game.walls, 'y')
+        collide_with_group(self, self.game.entities, 'y')
 
         self.rect.center = self.hit_rect.center
 
@@ -138,16 +149,16 @@ class Obstacle(pg.sprite.Sprite):
         self.rect.y = y
 
 class Item(pg.sprite.Sprite):
-    def __init__(self, game, pos, type):
+    def __init__(self, game, pos, name):
         self._layer = ITEMS_LAYER
         self.groups = game.all_sprites, game.items
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
-        self.image = game.item_images[type]
+        self.image = game.item_images[name]
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
-        self.type = type
+        self.name = name
 
         self.pos = pos
         self.rect.center = pos
@@ -168,39 +179,42 @@ class Item(pg.sprite.Sprite):
             self.dir *= -1
 
 class Mob(pg.sprite.Sprite):
-    def __init__(self, game, pos, type):
+    def __init__(self, game, pos, name):
         self._layer = MOBS_LAYER
         self.groups = game.all_sprites, game.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
-        self.image = game.mobs_images[type]
+        self.image = game.mobs_images[name]
         self.rect = self.image.get_rect()
         self.rect.center = pos
         self.hit_rect = self.rect
 
-        self.type = type
+        self.name = name
 
         self.pos = vec(pos[0], pos[1])
 
 class Entity(pg.sprite.Sprite):
-    def __init__(self, game, pos, type):
+    def __init__(self, game, pos, name, type):
         self._layer = ENTITIES_LAYER
         self.groups = game.all_sprites, game.entities
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
-        self.image = game.entities_images[type]
+        self.image = game.entities_images[name]
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
 
+        self.name = name
         self.type = type
+
+        self.open = False
 
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
 class Trigger(pg.sprite.Sprite):
-    def __init__(self, game, pos, w, h, type):
+    def __init__(self, game, pos, w, h, name):
         self._layer = TRIGGERS_LAYER
         self.groups = game.triggers
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -208,18 +222,18 @@ class Trigger(pg.sprite.Sprite):
         
         self.rect = pg.Rect(pos[0], pos[1], w, h)
 
-        self.type = type
+        self.name = name
         self.destination = None
 
-        self.action = TRIGGERS[type]['action']
+        self.action = TRIGGERS[name]['action']
         if self.action == 'teleport':
-            self.destination = TRIGGERS[type]['destination']
+            self.destination = TRIGGERS[name]['destination']
 
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
 class Passage(pg.sprite.Sprite):
-    def __init__(self, game, pos, w, h, type):
+    def __init__(self, game, pos, w, h, name):
         self._layer = PASSAGES_LAYER
         self.groups = game.passages
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -227,7 +241,7 @@ class Passage(pg.sprite.Sprite):
         
         self.rect = pg.Rect(pos[0], pos[1], w, h)
 
-        self.type = type
+        self.name = name
 
         self.rect.x = pos[0]
         self.rect.y = pos[1]

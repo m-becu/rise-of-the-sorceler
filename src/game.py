@@ -135,7 +135,7 @@ class Game:
 
             if tile_object.name in ENTITIES:
                 pos = (tile_object.x, tile_object.y)
-                Entity(self, pos, tile_object.name)
+                Entity(self, pos, tile_object.name, tile_object.type)
 
             if tile_object.name in TRIGGERS:
                 pos = (tile_object.x, tile_object.y)
@@ -154,6 +154,7 @@ class Game:
         self.paused = False
         if not past:
             self.draw_debug = False
+            self.noclip = False
 
     def run(self):
         # Game loop
@@ -203,6 +204,9 @@ class Game:
         # self.draw_grid()
 
         for sprite in self.all_sprites:
+            if isinstance(sprite, Player):
+                self.all_sprites.move_to_front(sprite)
+
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
             if self.draw_debug:
@@ -219,6 +223,9 @@ class Game:
         if self.paused:
             self.screen.blit(self.dim_screen, (0, 0))
             self.draw_text("PAUSED", self.main_font, 105, YELLOW, WIDTH / 2, HEIGHT / 2, align='center')
+
+        if self.noclip:
+            self.draw_text("NOCLIP", self.main_font, 70, WHITE, WIDTH/10, HEIGHT/10, align='center')
         
         pg.display.flip()
 
@@ -231,6 +238,8 @@ class Game:
                     self.quit()
                 if event.key == pg.K_h:
                     self.draw_debug = not self.draw_debug
+                if event.key == pg.K_n:
+                    self.noclip = not self.noclip
                 if event.key == pg.K_p:
                     self.paused = not self.paused
 

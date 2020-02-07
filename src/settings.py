@@ -46,7 +46,7 @@ PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 45)
 
 # Mobs
 MOBS_SPRITES = {
-    'guard': 902
+    'guard': 29
 }
 MOBS = {}
 MOBS['jail_guardian'] = {
@@ -56,12 +56,17 @@ MOBS['jail_guardian'] = {
 # Entities
 ENTITIES_SPRITES = {
     'chest_clsd': 206,
-    'chest_open': 207
+    'chest_open': 207,
+    'jail_clsd': 104,
+    'jail_open': 105
 }
 ENTITIES = {}
 ENTITIES['jail_chest'] = {
     'sprite': ENTITIES_SPRITES['chest_clsd'],
     'inventory': []
+}
+ENTITIES['jail_door_0'] = {
+    'sprite': ENTITIES_SPRITES['jail_clsd']
 }
 
 # PassagePoints
