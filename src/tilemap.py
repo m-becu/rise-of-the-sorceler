@@ -20,11 +20,14 @@ except ImportError as err:
     print("Couldn't load module. {err}")
     sys.exit(2)
 
+def collide_hit_rect(one, two):
+    return one.hit_rect.colliderect(two.rect)
+
 class TiledMap:
     def __init__(self, filename):
         tm = pytmx.load_pygame(filename, pixelalpha=True)
-        self.width = tm.width * tm.tilewidth
-        self.height = tm.height * tm.tileheight
+        self.width = tm.width * TILE_SIZE
+        self.height = tm.height * TILE_SIZE
         self.tmxdata = tm
 
     def render(self, surface):
@@ -34,10 +37,11 @@ class TiledMap:
                 for x, y, gid, in layer:
                     tile = ti(gid)
                     if tile:
-                        surface.blit(tile, (x * self.tmxdata.tilewidth,
-                                            y * self.tmxdata.tileheight))
+                        tile = pg.transform.scale(tile,(TILE_SIZE,TILE_SIZE))
+                        surface.blit(tile, (x * TILE_SIZE,
+                                            y * TILE_SIZE))
 
     def make_map(self):
-        temp_surface = pg.Surface((self.width, self.height))
+        temp_surface = pg.Surface((self.width, self.height), pg.SRCALPHA).convert_alpha()
         self.render(temp_surface)
         return temp_surface

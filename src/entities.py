@@ -14,6 +14,7 @@ try:
     # Game related
     import pygame as pg
     from settings import *
+    from tilemap import collide_hit_rect
 
     vec = pg.math.Vector2
 
@@ -64,7 +65,7 @@ class Spritesheet:
 
     def make_image(self, x, y):
         # Grab an image out of a larger spritesheet
-        image = pg.Surface((self.tileSize, self.tileSize))
+        image = pg.Surface((self.tileSize, self.tileSize), pg.SRCALPHA)
         image.blit(self.spritesheet, (0, 0), (x, y, self.tileSize, self.tileSize))
         image = pg.transform.scale(image, (TILE_SIZE, TILE_SIZE))
         return image
@@ -78,15 +79,14 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
 
         self.game = game
-        self.image = self.game.spritesheet.get_sprite(PLAYER_SPRITE).convert()
-        self.image.set_colorkey(BLACK)
+        self.image = self.game.player_img
 
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH / 2, HEIGHT / 2)
+        self.rect.center = (x, y)
         self.hit_rect = PLAYER_HIT_RECT
         self.hit_rect.center = self.rect.center
 
-        self.pos = vec(WIDTH / 2, HEIGHT / 2)
+        self.pos = vec(x, y)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
 
@@ -113,12 +113,26 @@ class Player(pg.sprite.Sprite):
         self.pos += self.vel * self.game.dt
 
         self.hit_rect.centerx = self.pos.x
-        # collide_with_group(self, self.game.walls, 'x')
+        collide_with_group(self, self.game.walls, 'x')
 
         self.hit_rect.centery = self.pos.y
-        # collide_with_group(self, self.game.walls, 'y')
+        collide_with_group(self, self.game.walls, 'y')
 
         self.rect.center = self.hit_rect.center
+
+class Obstacle(pg.sprite.Sprite):
+    def __init__(self, game, x, y, w, h):
+        self.groups = game.walls
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+        self.rect = pg.Rect(x, y, w, h)
+
+        self.x = x
+        self.y = y
+
+        self.rect.x = x
+        self.rect.y = y
 
 class Camera:
     def __init__(self, width, height):

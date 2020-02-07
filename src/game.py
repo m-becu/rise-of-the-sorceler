@@ -18,7 +18,7 @@ try:
     import pygame as pg
     from settings import *
     from tilemap import TiledMap
-    from entities import Player, Spritesheet, Camera
+    from entities import Player, Obstacle, Spritesheet, Camera
 
 except ImportError as err:
     print("Couldn't load module. {err}")
@@ -40,20 +40,33 @@ class Game:
         game_folder = path.dirname(__file__)
         assets_folder = path.join(game_folder, 'assets')
         maps_folder = path.join(game_folder, 'maps')
+        
+        self.spritesheet = Spritesheet(path.join(assets_folder, SPRITESHEET))
+
+        self.player_img = self.spritesheet.get_sprite(PLAYER_SPRITE)
 
         self.map = TiledMap(path.join(maps_folder, 'level0.tmx'))
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
-        self.spritesheet = Spritesheet(path.join(assets_folder, SPRITESHEET))
 
     def new(self):
         # Initialization and setup for a new game
         self.all_sprites = pg.sprite.Group()
+        self.walls = pg.sprite.Group()
 
-        self.player = Player(self, 5, 5)
+        for tile_object in self.map.tmxdata.objects:
+            if tile_object.name == 'player':
+                self.player = Player(self, tile_object.x, tile_object.y)
+
+            # if tile_object.name == 'zombie':
+            #     Mob(self, tile_object.x, tile_object.y)
+
+            if tile_object.name == 'wall':
+                Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 
         self.camera = Camera(self.map.width, self.map.height)
+        self.draw_debug = False
 
     def run(self):
         # Game loop
@@ -82,11 +95,18 @@ class Game:
     def draw(self):
         # Draw stuff here
         self.screen.fill(BG_COLOR)
-        # self.draw_grid()
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
+        # self.draw_grid()
 
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+
+            if self.draw_debug:
+                pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+        
+        if self.draw_debug:
+            for wall in self.walls:
+                pg.draw.rect(self.screen, YELLOW, self.camera.apply_rect(wall.rect), 1)
 
         pg.display.flip()
 
@@ -97,6 +117,8 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     self.quit()
+                if event.key == pg.K_h:
+                    self.draw_debug = not self.draw_debug
 
     def show_start_screen(self):
         pass
