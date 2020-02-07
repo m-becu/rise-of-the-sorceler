@@ -28,6 +28,7 @@ class TiledMap:
         tm = pytmx.load_pygame(filename, pixelalpha=True)
         self.width = tm.width * TILE_SIZE
         self.height = tm.height * TILE_SIZE
+        self.tilesize = tm.tileheight
         self.tmxdata = tm
 
     def render(self, surface):

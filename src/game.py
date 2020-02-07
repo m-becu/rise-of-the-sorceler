@@ -97,11 +97,22 @@ class Game:
         self.items = pg.sprite.Group()
 
         for tile_object in self.map.tmxdata.objects:
+
+            tile_object.x *= int(TILE_SIZE / self.map.tilesize)
+            tile_object.y *= int(TILE_SIZE / self.map.tilesize)
+
             obj_center = vec(tile_object.x + tile_object.width / 2,
                              tile_object.y + tile_object.height / 2)
 
             if tile_object.name == 'player':
                 self.player = Player(self, obj_center.x, obj_center.y)
+
+            elif tile_object.name in ['pickaxe']:
+                Item(self, obj_center, tile_object.name)
+
+            else:
+                tile_object.width *= int(TILE_SIZE / self.map.tilesize)
+                tile_object.height *= int(TILE_SIZE / self.map.tilesize)
 
             # if tile_object.name == 'zombie':
             #     Mob(self, tile_object.x, tile_object.y)
@@ -109,8 +120,6 @@ class Game:
             if tile_object.name == 'wall':
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 
-            if tile_object.name in ['pickaxe']:
-                Item(self, obj_center, tile_object.name)
 
         self.camera = Camera(self.map.width, self.map.height)
         self.paused = False
@@ -179,7 +188,23 @@ class Game:
         pass
 
     def show_go_screen(self):
-        pass
+        self.screen.fill(BLACK)
+        self.draw_text("GAME OVER", self.main_font, 180, RED, WIDTH / 2, HEIGHT / 2, align='center')
+        self.draw_text("Press a key to start a new game", self.main_font, 75, WHITE, WIDTH / 2, HEIGHT * 3 / 4, align='center')
+        pg.display.flip()
+        self.wait_for_key()
+
+    def wait_for_key(self):
+        pg.event.wait() # Clears out any event happened before GameOver event
+        waiting = True
+        while waiting:
+            self.clock.tick(FPS)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    waiting = False
+                    self.quit()
+                if event.type == pg.KEYUP:
+                    waiting = False
 
 g = Game()
 g.show_start_screen()

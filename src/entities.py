@@ -145,6 +145,7 @@ class Item(pg.sprite.Sprite):
         
         self.image = game.item_images[type]
         self.rect = self.image.get_rect()
+        self.hit_rect = self.rect
         self.type = type
 
         self.pos = pos
