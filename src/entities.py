@@ -76,7 +76,7 @@ class Spritesheet:
         return self.tiles[index]
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, pos):
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
 
@@ -84,11 +84,11 @@ class Player(pg.sprite.Sprite):
         self.image = self.game.player_img
 
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.center = pos
         self.hit_rect = PLAYER_HIT_RECT
         self.hit_rect.center = self.rect.center
 
-        self.pos = vec(x, y)
+        self.pos = vec(pos[0], pos[1])
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
 
@@ -124,6 +124,7 @@ class Player(pg.sprite.Sprite):
 
 class Obstacle(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, h):
+        self._layer = WALLS_LAYER
         self.groups = game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
 
@@ -165,6 +166,71 @@ class Item(pg.sprite.Sprite):
         if self.step > BOB_RANGE:
             self.step = 0
             self.dir *= -1
+
+class Mob(pg.sprite.Sprite):
+    def __init__(self, game, pos, type):
+        self._layer = MOBS_LAYER
+        self.groups = game.all_sprites, game.mobs
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        
+        self.image = game.mobs_images[type]
+        self.rect = self.image.get_rect()
+        self.rect.center = pos
+        self.hit_rect = self.rect
+
+        self.type = type
+
+        self.pos = vec(pos[0], pos[1])
+
+class Entity(pg.sprite.Sprite):
+    def __init__(self, game, pos, type):
+        self._layer = ENTITIES_LAYER
+        self.groups = game.all_sprites, game.entities
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        
+        self.image = game.entities_images[type]
+        self.rect = self.image.get_rect()
+        self.hit_rect = self.rect
+
+        self.type = type
+
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+class Trigger(pg.sprite.Sprite):
+    def __init__(self, game, pos, w, h, type):
+        self._layer = TRIGGERS_LAYER
+        self.groups = game.triggers
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        
+        self.rect = pg.Rect(pos[0], pos[1], w, h)
+
+        self.type = type
+        self.destination = None
+
+        self.action = TRIGGERS[type]['action']
+        if self.action == 'teleport':
+            self.destination = TRIGGERS[type]['destination']
+
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+class Passage(pg.sprite.Sprite):
+    def __init__(self, game, pos, w, h, type):
+        self._layer = PASSAGES_LAYER
+        self.groups = game.passages
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        
+        self.rect = pg.Rect(pos[0], pos[1], w, h)
+
+        self.type = type
+
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
 
 class Camera:
     def __init__(self, width, height):

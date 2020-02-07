@@ -32,19 +32,66 @@ SPRITESHEET = 'charset.png'
 BOB_RANGE = 15
 BOB_SPEED = 0.4
 
+# Maps
+MAPS = [
+    'level0.tmx',
+    'level1.tmx',
+    'level2.tmx'
+]
+
 # Player settings
 PLAYER_SPRITE = 25
 PLAYER_SPEED = 300
-PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
+PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 45)
+
+# Mobs
+MOBS_SPRITES = {
+    'guard': 902
+}
+MOBS = {}
+MOBS['jail_guardian'] = {
+    'sprite': MOBS_SPRITES['guard']
+}
+
+# Entities
+ENTITIES_SPRITES = {
+    'chest_clsd': 206,
+    'chest_open': 207
+}
+ENTITIES = {}
+ENTITIES['jail_chest'] = {
+    'sprite': ENTITIES_SPRITES['chest_clsd'],
+    'inventory': []
+}
+
+# PassagePoints
+PASSAGES = {}
+PASSAGES['to_jail'] = {'location': MAPS[1]}
+PASSAGES['from_jail'] = {'location': MAPS[2]}
+
+# Triggers
+TRIGGERS = {}
+TRIGGERS['jail_upstairs'] = {
+    'action': 'teleport',
+    'destination': 'from_jail'
+    }
 
 # Items
+ITEMS = [
+    'pickaxe',
+    'sword'
+]
 ITEM_SPRITES = {
     'pickaxe': 902
 }
 
 # Layers
-WALL_LAYER = 1
+WALLS_LAYER = 1
 PLAYER_LAYER = 2
+MOBS_LAYER = 2
+ENTITIES_LAYER = 3
+TRIGGERS_LAYER = 4
+PASSAGES_LAYER = 4
 ITEMS_LAYER = 1
 
 # Fonts

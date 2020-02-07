@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="22" height="22" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="36">
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="22" height="22" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="43">
  <tileset firstgid="1" source="charset.tsx"/>
  <layer id="1" name="ground" width="22" height="22">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,555,555,555,557,587,555,555,588,555,555,555,557,587,587,587,0,0,0,
-0,0,0,0,587,2,4,2,4,4,4,555,4,5,5,481,2,4,555,0,0,0,
+0,0,0,0,587,2,4,2,4,4,4,555,4,5,5,3,2,4,555,0,0,0,
 0,0,0,0,587,262,5,4,3,5,2,555,3,4,5,4,4,2147483910,587,0,0,0,
-0,0,0,0,555,3,5,3,3,2,4,555,5,2,2,2,4,3,555,0,0,0,
+0,0,0,0,555,3,5,3,3,2,4,555,5,481,2,2,4,3,555,0,0,0,
 0,0,0,0,587,2,4,3,2,5,3,587,4,2,3,2,5,4,587,0,0,0,
 0,0,0,0,555,587,587,587,102,0,587,588,587,102,102,555,587,587,587,0,0,0,
 0,0,0,0,555,4,2,2,3,4,5,258,2,3,5,5,5,2,587,0,0,0,
@@ -42,18 +42,27 @@
   <object id="25" name="wall" x="288" y="160" width="16" height="64"/>
   <object id="26" name="wall" x="288" y="32" width="16" height="112"/>
   <object id="27" name="wall" x="112" y="240" width="16" height="48"/>
-  <object id="28" name="wall" x="160" y="304" width="16" height="32"/>
+  <object id="28" name="wall" x="156" y="304" width="20" height="32"/>
   <object id="29" name="wall" x="176" y="208" width="48" height="16"/>
-  <object id="30" name="wall" x="84" y="52" width="8" height="8"/>
+  <object id="30" name="wall" x="80" y="52" width="16" height="12"/>
+  <object id="36" name="wall" x="180" y="200" width="8" height="8"/>
+  <object id="37" name="wall" x="212" y="200" width="8" height="8"/>
+  <object id="38" name="wall" x="180" y="116" width="8" height="8"/>
+  <object id="41" name="wall" x="176" y="160" width="16" height="12"/>
  </objectgroup>
  <objectgroup id="2" name="objects">
   <object id="6" name="jail_door" x="144" y="96" width="16" height="16"/>
   <object id="7" name="jail_chest" x="176" y="160" width="16" height="16"/>
-  <object id="11" name="jail_upstairs" x="148" y="308" width="8" height="24"/>
+ </objectgroup>
+ <objectgroup id="6" name="triggers">
+  <object id="39" name="jail_upstairs" x="148" y="308" width="8" height="24"/>
+ </objectgroup>
+ <objectgroup id="7" name="passages">
+  <object id="42" name="to_jail" x="136" y="316" width="8" height="8"/>
  </objectgroup>
  <objectgroup id="4" name="entities">
   <object id="12" name="player" x="116" y="52" width="8" height="8"/>
-  <object id="13" name="jail_guardian" x="180" y="116" width="8" height="8"/>
+  <object id="13" name="jail_guardian" x="196" y="116" width="8" height="8"/>
   <object id="35" name="pickaxe" x="148" y="52" width="8" height="8"/>
  </objectgroup>
 </map>
