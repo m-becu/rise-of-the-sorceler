@@ -45,7 +45,7 @@ class Game:
 
         self.player_img = self.spritesheet.get_sprite(PLAYER_SPRITE)
 
-        self.map = TiledMap(path.join(maps_folder, 'level0.tmx'))
+        self.map = TiledMap(path.join(maps_folder, 'level1.tmx'))
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
