@@ -99,7 +99,7 @@ class Game:
 
         self.entities_images = {}
         for entity in ENTITIES:
-            self.entities_images[entity] = self.spritesheet.get_sprite(ENTITIES[entity]['sprite'])
+            self.entities_images[entity] = self.spritesheet.get_sprite(ENTITIES[entity]['sprite1'])
 
     def new(self, past=False):
         # Initialization and setup
@@ -133,7 +133,7 @@ class Game:
                 tile_object.width *= int(TILE_SIZE / self.map.tilesize)
                 tile_object.height *= int(TILE_SIZE / self.map.tilesize)
 
-            if tile_object.name in ENTITIES:
+            if tile_object.type in ENTITIES:
                 pos = (tile_object.x, tile_object.y)
                 Entity(self, pos, tile_object.name, tile_object.type)
 

@@ -58,16 +58,26 @@ ENTITIES_SPRITES = {
     'chest_clsd': 206,
     'chest_open': 207,
     'jail_clsd': 104,
-    'jail_open': 105
+    'jail_open': 105,
+    'breakable_wall_1': 429,
+    'broken_wall_1': 571
 }
 ENTITIES = {}
-ENTITIES['jail_chest'] = {
-    'sprite': ENTITIES_SPRITES['chest_clsd'],
-    'inventory': []
+ENTITIES['wooden_chest'] = {
+    'sprite1': ENTITIES_SPRITES['chest_clsd'],
+    'sprite2': ENTITIES_SPRITES['chest_open']
 }
-ENTITIES['jail_door_0'] = {
-    'sprite': ENTITIES_SPRITES['jail_clsd']
+ENTITIES['iron_bars'] = {
+    'sprite1': ENTITIES_SPRITES['jail_clsd'],
+    'sprite2': ENTITIES_SPRITES['jail_open']
 }
+ENTITIES['breakable_wall_1'] = {
+    'sprite1': ENTITIES_SPRITES['breakable_wall_1'],
+    'sprite2': ENTITIES_SPRITES['broken_wall_1'],
+}
+
+ENTITY_DOORS = ['iron_bars', 'breakable_wall_1']
+ENTITY_CHESTS = ['wooden_chest']
 
 # PassagePoints
 PASSAGES = {}
@@ -80,6 +90,10 @@ TRIGGERS['jail_upstairs'] = {
     'action': 'teleport',
     'destination': 'from_jail'
     }
+TRIGGERS['jail_downstairs'] = {
+    'action': 'teleport',
+    'destination': 'to_jail'
+}
 
 # Items
 ITEMS = [

@@ -201,12 +201,15 @@ class Entity(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
-        self.image = game.entities_images[name]
+        self.image = game.entities_images[type]
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
 
         self.name = name
-        self.type = type
+        if type in ENTITY_DOORS:
+            self.type = 'door'
+        if type in ENTITY_CHESTS:
+            self.type = 'chest'
 
         self.open = False
 
