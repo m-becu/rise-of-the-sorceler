@@ -46,7 +46,7 @@
 </data>
  </layer>
  <objectgroup id="8" name="objects">
-  <object id="21" name="secret_passage_1_1" type="breakable_wall_1" x="48" y="496" width="16" height="16"/>
+  <object id="21" name="breakable_wall_1" x="48" y="496" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="5" name="obstacles">
   <object id="3" name="wall" x="-4" y="448" width="4" height="64"/>
@@ -62,7 +62,7 @@
   <object id="13" name="wall" x="192" y="512" width="16" height="32"/>
   <object id="16" name="wall" x="48" y="592" width="96" height="16"/>
   <object id="17" name="wall" x="192" y="416" width="16" height="32"/>
-  <object id="23" name="secret_passage_1_2" type="breakable_wall_1" x="128" y="544" width="16" height="16"/>
+  <object id="23" name="breakable_wall_1" x="128" y="544" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="6" name="entities">
   <object id="18" name="jail_guardian" type="npc" x="116" y="452" width="8" height="8"/>

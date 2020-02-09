@@ -49,8 +49,8 @@
   <object id="37" name="wall" x="212" y="200" width="8" height="8"/>
  </objectgroup>
  <objectgroup id="2" name="objects">
-  <object id="6" name="jail_door_0" type="iron_bars" x="144" y="96" width="16" height="16"/>
-  <object id="7" name="jail_chest" type="wooden_chest" x="176" y="160" width="16" height="16"/>
+  <object id="6" name="jail_door_0" x="144" y="96" width="16" height="16"/>
+  <object id="7" name="jail_chest_0" x="176" y="160" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="6" name="triggers">
   <object id="39" name="jail_upstairs" x="148" y="308" width="8" height="24"/>

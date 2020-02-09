@@ -101,6 +101,8 @@ class Player(pg.sprite.Sprite):
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
 
+        self.inventory = []
+
     def get_keys(self):
         self.vel.x, self.vel.y = 0, 0
         keys = pg.key.get_pressed()
@@ -132,6 +134,21 @@ class Player(pg.sprite.Sprite):
         collide_with_group(self, self.game.entities, 'y')
 
         self.rect.center = self.hit_rect.center
+
+    def has(self, item):
+        if item in self.inventory:
+            return True
+        return False
+
+    def give(self, inventory):
+        for item in inventory:
+            self.inventory.append(item)
+
+    def use_closest_object(self):
+        for entity in self.game.entities:
+            dist = self.pos - entity.pos
+            if 0 < dist.length() < PLAYER_INTERACT_RANGE:
+                entity.use()
 
 class Obstacle(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, h):
@@ -195,26 +212,40 @@ class Mob(pg.sprite.Sprite):
         self.pos = vec(pos[0], pos[1])
 
 class Entity(pg.sprite.Sprite):
-    def __init__(self, game, pos, name, type):
+    def __init__(self, game, pos, name):
         self._layer = ENTITIES_LAYER
         self.groups = game.all_sprites, game.entities
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
-        self.image = game.entities_images[type]
+        self.image = game.entities_images[name][0]
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
 
         self.name = name
-        if type in ENTITY_DOORS:
-            self.type = 'door'
-        if type in ENTITY_CHESTS:
-            self.type = 'chest'
+        self.type = ENTITIES[name]['type']
+        self.key = ENTITIES[name]['key']
+        if self.type == 'chest':
+            self.inventory = ENTITIES[name]['inventory']
 
         self.open = False
+        
+        self.pos = pos
 
         self.rect.x = pos[0]
         self.rect.y = pos[1]
+
+    def use(self):
+        if self.key != '':
+            if not self.game.player.has(self.key):
+                return
+
+        self.image = self.game.entities_images[self.name][1]
+        if self.type == 'chest':
+            self.game.player.give(self.inventory)
+            self.inventory = []
+        if self.type == 'door':
+            self.open = True
 
 class Trigger(pg.sprite.Sprite):
     def __init__(self, game, pos, w, h, name):

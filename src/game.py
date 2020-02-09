@@ -99,7 +99,9 @@ class Game:
 
         self.entities_images = {}
         for entity in ENTITIES:
-            self.entities_images[entity] = self.spritesheet.get_sprite(ENTITIES[entity]['sprite1'])
+            sprite1 = self.spritesheet.get_sprite(ENTITIES[entity]['sprite1'])
+            sprite2 = self.spritesheet.get_sprite(ENTITIES[entity]['sprite2'])
+            self.entities_images[entity] = (sprite1, sprite2)
 
     def new(self, past=False):
         # Initialization and setup
@@ -133,9 +135,9 @@ class Game:
                 tile_object.width *= int(TILE_SIZE / self.map.tilesize)
                 tile_object.height *= int(TILE_SIZE / self.map.tilesize)
 
-            if tile_object.type in ENTITIES:
+            if tile_object.name in ENTITIES:
                 pos = (tile_object.x, tile_object.y)
-                Entity(self, pos, tile_object.name, tile_object.type)
+                Entity(self, pos, tile_object.name)
 
             if tile_object.name in TRIGGERS:
                 pos = (tile_object.x, tile_object.y)
@@ -242,6 +244,10 @@ class Game:
                     self.noclip = not self.noclip
                 if event.key == pg.K_p:
                     self.paused = not self.paused
+                if event.key == pg.K_i:
+                    print(self.player.inventory)
+                if event.key == pg.K_RETURN:
+                    self.player.use_closest_object()
 
     def show_start_screen(self):
         pass

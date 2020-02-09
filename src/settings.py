@@ -43,6 +43,7 @@ MAPS = [
 PLAYER_SPRITE = 25
 PLAYER_SPEED = 300
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 45)
+PLAYER_INTERACT_RANGE = 60
 
 # Mobs
 MOBS_SPRITES = {
@@ -63,21 +64,25 @@ ENTITIES_SPRITES = {
     'broken_wall_1': 571
 }
 ENTITIES = {}
-ENTITIES['wooden_chest'] = {
+ENTITIES['jail_chest_0'] = {
+    'type': 'chest',
+    'key': '',
+    'inventory': ['iron_pickaxe'],
     'sprite1': ENTITIES_SPRITES['chest_clsd'],
     'sprite2': ENTITIES_SPRITES['chest_open']
 }
-ENTITIES['iron_bars'] = {
+ENTITIES['jail_door_0'] = {
+    'type': 'door',
+    'key': 'guardian_key_0',
     'sprite1': ENTITIES_SPRITES['jail_clsd'],
     'sprite2': ENTITIES_SPRITES['jail_open']
 }
 ENTITIES['breakable_wall_1'] = {
+    'type': 'door',
+    'key': 'iron-pickaxe',
     'sprite1': ENTITIES_SPRITES['breakable_wall_1'],
     'sprite2': ENTITIES_SPRITES['broken_wall_1'],
 }
-
-ENTITY_DOORS = ['iron_bars', 'breakable_wall_1']
-ENTITY_CHESTS = ['wooden_chest']
 
 # PassagePoints
 PASSAGES = {}
