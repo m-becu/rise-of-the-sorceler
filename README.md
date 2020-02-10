@@ -1,15 +1,17 @@
 # The Rise of The Sorceler
 This is my first attempt of creating a roguelike game.
 
+## List of functionnalities
++ Movement and collisions
++ Sprites, animations, maps
++ Interact with chests/doors (if you have the key).
++ Triggers and passages
++ Basic inventory system
+
+### What's new
+I managed to give player possiblity to change maps by traveling, I used a system a "views" : Pygame is drawing entities and images on thos views and when changing the map it's just like changing the view so pygame know which one it has to draw.
+I don't know if it's the correct way to do it but this system works and I'm very proud.
+
 ## TODO
-* Find a cleaner way to change maps as the actual way is not saving any changes made before.
-So if I open a chest on map1, travel on map2 and get back, map1 will be reset and the chest will be full.
-
-+ Method to open chests
-+ Method to open doors/break walls
-Maybe I will use a 'key' system where player have to posses a tagged key which allows him to open door or break walls.
-If I do like so :
-+ Implement an inventory system
-
 + Dialogs
 + NPC interactions

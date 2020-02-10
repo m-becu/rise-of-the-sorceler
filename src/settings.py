@@ -43,7 +43,7 @@ MAPS = [
 PLAYER_SPRITE = 25
 PLAYER_SPEED = 300
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 45)
-PLAYER_INTERACT_RANGE = 60
+PLAYER_INTERACT_RANGE = 120
 
 # Mobs
 MOBS_SPRITES = {
@@ -86,8 +86,16 @@ ENTITIES['breakable_wall_1'] = {
 
 # PassagePoints
 PASSAGES = {}
-PASSAGES['to_jail'] = {'location': MAPS[1]}
-PASSAGES['from_jail'] = {'location': MAPS[2]}
+PASSAGES['to_jail'] = {
+    'location': MAPS[1],
+    'x': 0,
+    'y': 0
+}
+PASSAGES['from_jail'] = {
+    'location': MAPS[2],
+    'x': 0,
+    'y': 0
+}
 
 # Triggers
 TRIGGERS = {}

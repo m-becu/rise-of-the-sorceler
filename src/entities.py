@@ -86,7 +86,7 @@ class Spritesheet:
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game, pos):
-        self.groups = game.all_sprites
+        self.groups = game.view.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
 
         self.game = game
@@ -153,7 +153,7 @@ class Player(pg.sprite.Sprite):
 class Obstacle(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, h):
         self._layer = WALLS_LAYER
-        self.groups = game.walls
+        self.groups = game.view.walls
         pg.sprite.Sprite.__init__(self, self.groups)
 
         self.game = game
@@ -168,7 +168,7 @@ class Obstacle(pg.sprite.Sprite):
 class Item(pg.sprite.Sprite):
     def __init__(self, game, pos, name):
         self._layer = ITEMS_LAYER
-        self.groups = game.all_sprites, game.items
+        self.groups = game.view.all_sprites, game.view.items
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
@@ -198,7 +198,7 @@ class Item(pg.sprite.Sprite):
 class Mob(pg.sprite.Sprite):
     def __init__(self, game, pos, name):
         self._layer = MOBS_LAYER
-        self.groups = game.all_sprites, game.mobs
+        self.groups = game.view.all_sprites, game.view.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
@@ -214,7 +214,7 @@ class Mob(pg.sprite.Sprite):
 class Entity(pg.sprite.Sprite):
     def __init__(self, game, pos, name):
         self._layer = ENTITIES_LAYER
-        self.groups = game.all_sprites, game.entities
+        self.groups = game.view.all_sprites, game.view.entities
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
@@ -250,7 +250,7 @@ class Entity(pg.sprite.Sprite):
 class Trigger(pg.sprite.Sprite):
     def __init__(self, game, pos, w, h, name):
         self._layer = TRIGGERS_LAYER
-        self.groups = game.triggers
+        self.groups = game.view.triggers
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
@@ -269,7 +269,7 @@ class Trigger(pg.sprite.Sprite):
 class Passage(pg.sprite.Sprite):
     def __init__(self, game, pos, w, h, name):
         self._layer = PASSAGES_LAYER
-        self.groups = game.passages
+        self.groups = game.view.passages
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         
@@ -277,6 +277,7 @@ class Passage(pg.sprite.Sprite):
 
         self.name = name
 
+        self.pos = pos
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 

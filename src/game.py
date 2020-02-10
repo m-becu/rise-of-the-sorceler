@@ -14,6 +14,7 @@ try:
     # System
     import sys
     from os import path
+    from os import listdir
     # Game related
     import pygame as pg
     from settings import *
@@ -27,17 +28,36 @@ except ImportError as err:
     print("Couldn't load module. {err}")
     sys.exit(2)
 
+class View:
+    def __init__(self, game, map, dimensions):
+        self.game           = game
+        self.map            = TiledMap(path.join(game.maps_folder, map))
+        self.map_img        = self.map.make_map()
+        self.map_rect       = self.map_img.get_rect()
+
+        self.dimensions     = dimensions
+        self.screen         = pg.display.set_mode(self.dimensions)
+
+        self.all_sprites    = game.all_sprites
+        self.walls          = game.walls
+        self.items          = game.items
+        self.entities       = game.entities
+        self.mobs           = game.mobs
+        self.triggers       = game.triggers
+        self.passages       = game.passages
+
 class Game:
     def __init__(self):
         pg.init()
         self.dimensions = (WIDTH, HEIGHT)
         self.screen = pg.display.set_mode(self.dimensions)
+
         self.clock = pg.time.Clock()
 
-        pg.display.set_caption(TITLE)
-        # pg.key.set_repeat(500, 100)
+        self.maps = {}
+        self.views = {}
 
-        self.current_map = MAPS[1]
+        pg.display.set_caption(TITLE)
 
         self.load_data()
 
@@ -66,27 +86,29 @@ class Game:
         self.screen.blit(text_surface, text_rect)
 
     def load_data(self):
-        game_folder = path.dirname(__file__)
+        self.game_folder = path.dirname(__file__)
         
-        maps_folder = path.join(game_folder, 'maps')
-        assets_folder = path.join(game_folder, 'assets')
+        self.maps_folder = path.join(self.game_folder, 'maps')
+        self.assets_folder = path.join(self.game_folder, 'assets')
         
-        fonts_folder = path.join(assets_folder, 'fonts')
+        self.fonts_folder = path.join(self.assets_folder, 'fonts')
         
-        self.spritesheet = Spritesheet(path.join(assets_folder, SPRITESHEET))
+        self.spritesheet = Spritesheet(path.join(self.assets_folder, SPRITESHEET))
 
         self.player_img = self.spritesheet.get_sprite(PLAYER_SPRITE)
 
-        self.main_font = path.join(fonts_folder, MAIN_FONT)
+        self.main_font = path.join(self.fonts_folder, MAIN_FONT)
 
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 188))
 
-        self.map = TiledMap(path.join(maps_folder, self.current_map))
-        self.map_img = self.map.make_map()
-        self.map_rect = self.map_img.get_rect()
-
-        self.passages_pos = {}
+        maps = [f for f in listdir(path.join(self.maps_folder)) if path.isfile(path.join(path.join(self.maps_folder), f))]
+        for map_name in maps:
+            if '.tmx' in map_name:
+                map = TiledMap(path.join(self.maps_folder, map_name))
+                map_img = map.make_map()
+                map_rect = map_img.get_rect()
+                self.maps[map_name] = (map, map_img, map_rect)
 
         self.item_images = {}
         for item in ITEM_SPRITES:
@@ -103,60 +125,83 @@ class Game:
             sprite2 = self.spritesheet.get_sprite(ENTITIES[entity]['sprite2'])
             self.entities_images[entity] = (sprite1, sprite2)
 
-    def new(self, past=False):
+    def new(self):
         # Initialization and setup
-        self.all_sprites = pg.sprite.LayeredUpdates()
-        self.walls = pg.sprite.Group()
-        self.items = pg.sprite.Group()
-        self.entities = pg.sprite.Group()
-        self.mobs = pg.sprite.Group()
-        self.triggers = pg.sprite.Group()
-        self.passages = pg.sprite.Group()
+        self.reset_groups()
 
-        for tile_object in self.map.tmxdata.objects:
+        self.current_map = MAPS[1]
+        self.view = View(self, self.current_map, self.dimensions)
+        self.views[self.current_map] = self.view
 
-            tile_object.x *= int(TILE_SIZE / self.map.tilesize)
-            tile_object.y *= int(TILE_SIZE / self.map.tilesize)
+        self.player_spawned = False
+        self.zone = None
 
-            obj_center = vec(tile_object.x + tile_object.width / 2 + 12, tile_object.y + tile_object.height / 2 + 12)
-            # I still can't figure out why I have to 
-            # hard-code an offset of 12 pixels for the positions of the entities.
+        self.load_map()
 
-            if tile_object.name == 'player':
-                self.player = Player(self, obj_center)
+        self.draw_debug = False
+        self.noclip = False
 
-            elif tile_object.name in ITEMS:
-                Item(self, obj_center, tile_object.name)
+    def reset_groups(self):
+        self.all_sprites    = pg.sprite.LayeredUpdates()
+        self.walls          = pg.sprite.Group()
+        self.items          = pg.sprite.Group()
+        self.entities       = pg.sprite.Group()
+        self.mobs           = pg.sprite.Group()
+        self.triggers       = pg.sprite.Group()
+        self.passages       = pg.sprite.Group()
 
-            elif tile_object.name in MOBS:
-                Mob(self, obj_center, tile_object.name)
+    def load_groups(self):
+        self.all_sprites    = self.view.all_sprites
+        self.walls          = self.view.walls
+        self.items          = self.view.items
+        self.entities       = self.view.entities
+        self.mobs           = self.view.mobs
+        self.triggers       = self.view.triggers
+        self.passages       = self.view.passages
 
-            else:
-                tile_object.width *= int(TILE_SIZE / self.map.tilesize)
-                tile_object.height *= int(TILE_SIZE / self.map.tilesize)
+    def load_map(self):
+        for tile_object in self.view.map.tmxdata.objects:
 
-            if tile_object.name in ENTITIES:
-                pos = (tile_object.x, tile_object.y)
-                Entity(self, pos, tile_object.name)
+                tile_object.x *= int(TILE_SIZE / self.view.map.tilesize)
+                tile_object.y *= int(TILE_SIZE / self.view.map.tilesize)
 
-            if tile_object.name in TRIGGERS:
-                pos = (tile_object.x, tile_object.y)
-                Trigger(self, pos, tile_object.width, tile_object.height, tile_object.name)
+                obj_center = vec(tile_object.x + tile_object.width / 2 + 12, tile_object.y + tile_object.height / 2 + 12)
+                # I still can't figure out why I have to 
+                # hard-code an offset of 12 pixels for the positions of the entities.
 
-            if tile_object.name in PASSAGES:
-                pos = (tile_object.x, tile_object.y)
-                self.passages_pos[tile_object.name] = pos
-                Passage(self, pos, tile_object.width, tile_object.height, tile_object.name)
+                if tile_object.name == 'player_start' and not self.player_spawned:
+                    self.player = Player(self, obj_center)
+                    self.player_spawned = True
 
-            if tile_object.name == 'wall':
-                Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+                elif tile_object.name in ITEMS:
+                    Item(self, obj_center, tile_object.name)
 
+                elif tile_object.name in MOBS:
+                    Mob(self, obj_center, tile_object.name)
 
-        self.camera = Camera(self.map.width, self.map.height)
+                else:
+                    tile_object.width *= int(TILE_SIZE / self.view.map.tilesize)
+                    tile_object.height *= int(TILE_SIZE / self.view.map.tilesize)
+
+                if tile_object.name in ENTITIES:
+                    pos = (tile_object.x, tile_object.y)
+                    Entity(self, pos, tile_object.name)
+
+                if tile_object.name in TRIGGERS:
+                    pos = (tile_object.x, tile_object.y)
+                    Trigger(self, pos, tile_object.width, tile_object.height, tile_object.name)
+
+                if tile_object.name in PASSAGES:
+                    pos = (tile_object.x, tile_object.y)
+                    PASSAGES[tile_object.name]['x'] = tile_object.x
+                    PASSAGES[tile_object.name]['y'] = tile_object.y
+                    Passage(self, pos, tile_object.width, tile_object.height, tile_object.name)
+
+                if tile_object.name == 'wall':
+                    Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+
+        self.camera = Camera(self.view.map.width, self.view.map.height)
         self.paused = False
-        if not past:
-            self.draw_debug = False
-            self.noclip = False
 
     def run(self):
         # Game loop
@@ -174,7 +219,7 @@ class Game:
 
     def update(self):
         # Update portion of the game loop
-        self.all_sprites.update()
+        self.view.all_sprites.update()
         self.camera.update(self.player)
 
         triggers = pg.sprite.spritecollide(self.player, self.triggers, False, collide_hit_rect)
@@ -184,12 +229,22 @@ class Game:
 
     def travel_to(self, dest):
         dest_map = PASSAGES[dest]['location']
+        self.views[self.current_map] = self.view
+
+        if dest_map not in self.views:
+            next_view = View(self, dest_map, self.dimensions)
+            self.view = next_view
+            self.view.all_sprites.add(self.player)
+            self.load_map()
+
+        else:
+            self.view = self.views[dest_map]
+            
+        self.load_groups()
+
         self.current_map = dest_map
+        dest_pos = vec(PASSAGES[dest]['x'], PASSAGES[dest]['y'])
 
-        self.load_data()
-        self.new(past=True)
-
-        dest_pos = self.passages_pos[dest]
         self.player.vel = vec(0, 0)
         self.player.pos = dest_pos
 
@@ -201,34 +256,35 @@ class Game:
 
     def draw(self):
         # Draw stuff here
-        self.screen.fill(BG_COLOR)
-        self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
+        self.view.screen.fill(BG_COLOR)
+        self.view.screen.blit(self.view.map_img, self.camera.apply_rect(self.view.map_rect))
         # self.draw_grid()
 
         for sprite in self.all_sprites:
             if isinstance(sprite, Player):
-                self.all_sprites.move_to_front(sprite)
+                self.view.all_sprites.move_to_front(sprite)
 
-            self.screen.blit(sprite.image, self.camera.apply(sprite))
+            self.view.screen.blit(sprite.image, self.camera.apply(sprite))
 
             if self.draw_debug:
-                pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+                pg.draw.rect(self.view.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
         
         if self.draw_debug:
             for wall in self.walls:
-                pg.draw.rect(self.screen, YELLOW, self.camera.apply_rect(wall.rect), 1)
+                pg.draw.rect(self.view.screen, YELLOW, self.camera.apply_rect(wall.rect), 1)
             for trigger in self.triggers:
-                pg.draw.rect(self.screen, RED, self.camera.apply_rect(trigger.rect), 1)
+                pg.draw.rect(self.view.screen, RED, self.camera.apply_rect(trigger.rect), 1)
             for passage in self.passages:
-                pg.draw.rect(self.screen, GREEN, self.camera.apply_rect(passage.rect), 1)
+                pg.draw.rect(self.view.screen, GREEN, self.camera.apply_rect(passage.rect), 1)
 
         if self.paused:
-            self.screen.blit(self.dim_screen, (0, 0))
+            self.view.screen.blit(self.dim_screen, (0, 0))
             self.draw_text("PAUSED", self.main_font, 105, YELLOW, WIDTH / 2, HEIGHT / 2, align='center')
 
         if self.noclip:
             self.draw_text("NOCLIP", self.main_font, 70, WHITE, WIDTH/10, HEIGHT/10, align='center')
         
+        self.screen = self.view.screen
         pg.display.flip()
 
     def events(self):
@@ -246,6 +302,9 @@ class Game:
                     self.paused = not self.paused
                 if event.key == pg.K_i:
                     print(self.player.inventory)
+                if event.key == pg.K_u:
+                    print(self.player.pos)
+                    print("Passages: {}".format(PASSAGES))
                 if event.key == pg.K_RETURN:
                     self.player.use_closest_object()
 
