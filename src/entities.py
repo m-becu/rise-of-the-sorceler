@@ -84,6 +84,17 @@ class Spritesheet:
     def get_sprite(self, index):
         return self.tiles[index]
 
+class Lifebar(pg.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.gui
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+        heart = self.game.spritesheet.get_sprite(HEART_SPRITE)
+        self.image = self.game.lifebar_img
+
+        self.rect = self.image.get_rect()
+
 class Player(pg.sprite.Sprite):
     def __init__(self, game, pos):
         self.groups = game.view.all_sprites
