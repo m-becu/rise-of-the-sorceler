@@ -45,6 +45,9 @@ PLAYER_SPEED = 300
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 45)
 PLAYER_INTERACT_RANGE = 120
 
+# GUI related
+HEART_SPRITE = 753
+
 # Mobs
 MOBS_SPRITES = {
     'guard': 29
