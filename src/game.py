@@ -61,30 +61,6 @@ class Game:
 
         self.load_data()
 
-    def draw_text(self, text, font_name, size, color, x, y, align="nw"):
-        font = pg.font.Font(font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect()
-        if align == "nw":
-            text_rect.topleft = (x, y)
-        if align == "ne":
-            text_rect.topright = (x, y)
-        if align == "sw":
-            text_rect.bottomleft = (x, y)
-        if align == "se":
-            text_rect.bottomright = (x, y)
-        if align == "n":
-            text_rect.midtop = (x, y)
-        if align == "s":
-            text_rect.midbottom = (x, y)
-        if align == "e":
-            text_rect.midright = (x, y)
-        if align == "w":
-            text_rect.midleft = (x, y)
-        if align == "center":
-            text_rect.center = (x, y)
-        self.screen.blit(text_surface, text_rect)
-
     def load_data(self):
         self.game_folder = path.dirname(__file__)
         
@@ -96,6 +72,7 @@ class Game:
         self.spritesheet = Spritesheet(path.join(self.assets_folder, SPRITESHEET))
 
         self.player_img = self.spritesheet.get_sprite(PLAYER_SPRITE)
+        self.lifebar_img = pg.Surface((TILE_SIZE, TILE_SIZE*3)).convert_alpha()
 
         self.main_font = path.join(self.fonts_folder, MAIN_FONT)
 
@@ -128,6 +105,7 @@ class Game:
     def new(self):
         # Initialization and setup
         self.reset_groups()
+        self.gui = pg.sprite.Group()
 
         self.current_map = MAPS[1]
         self.view = View(self, self.current_map, self.dimensions)
@@ -138,6 +116,9 @@ class Game:
 
         self.load_map()
 
+        self.show_dialog = False
+        self.show_gui = True
+        
         self.draw_debug = False
         self.noclip = False
 
@@ -232,14 +213,14 @@ class Game:
         self.views[self.current_map] = self.view
 
         if dest_map not in self.views:
-            next_view = View(self, dest_map, self.dimensions)
-            self.view = next_view
+            self.reset_groups()
+            self.view = View(self, dest_map, self.dimensions)
             self.view.all_sprites.add(self.player)
             self.load_map()
 
         else:
             self.view = self.views[dest_map]
-            
+
         self.load_groups()
 
         self.current_map = dest_map
@@ -247,6 +228,30 @@ class Game:
 
         self.player.vel = vec(0, 0)
         self.player.pos = dest_pos
+
+    def draw_text(self, text, font_name, size, color, x, y, align="nw"):
+        font = pg.font.Font(font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        if align == "nw":
+            text_rect.topleft = (x, y)
+        if align == "ne":
+            text_rect.topright = (x, y)
+        if align == "sw":
+            text_rect.bottomleft = (x, y)
+        if align == "se":
+            text_rect.bottomright = (x, y)
+        if align == "n":
+            text_rect.midtop = (x, y)
+        if align == "s":
+            text_rect.midbottom = (x, y)
+        if align == "e":
+            text_rect.midright = (x, y)
+        if align == "w":
+            text_rect.midleft = (x, y)
+        if align == "center":
+            text_rect.center = (x, y)
+        self.screen.blit(text_surface, text_rect)
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILE_SIZE):
@@ -270,6 +275,8 @@ class Game:
                 pg.draw.rect(self.view.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
         
         if self.draw_debug:
+            pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
+            
             for wall in self.walls:
                 pg.draw.rect(self.view.screen, YELLOW, self.camera.apply_rect(wall.rect), 1)
             for trigger in self.triggers:
@@ -277,12 +284,25 @@ class Game:
             for passage in self.passages:
                 pg.draw.rect(self.view.screen, GREEN, self.camera.apply_rect(passage.rect), 1)
 
+        else:
+            pg.display.set_caption(TITLE)
+
         if self.paused:
             self.view.screen.blit(self.dim_screen, (0, 0))
             self.draw_text("PAUSED", self.main_font, 105, YELLOW, WIDTH / 2, HEIGHT / 2, align='center')
 
         if self.noclip:
             self.draw_text("NOCLIP", self.main_font, 70, WHITE, WIDTH/10, HEIGHT/10, align='center')
+
+        if self.show_dialog:
+            box_dialog = pg.Surface((WIDTH, HEIGHT/4)).convert_alpha()
+            box_dialog.fill((0, 0, 0, 188))
+
+            self.view.screen.blit(box_dialog, (0, HEIGHT * 3/4))
+
+        if self.show_gui:
+            for ui in self.gui:
+                self.view.screen.blit(ui)
         
         self.screen = self.view.screen
         pg.display.flip()
@@ -303,8 +323,7 @@ class Game:
                 if event.key == pg.K_i:
                     print(self.player.inventory)
                 if event.key == pg.K_u:
-                    print(self.player.pos)
-                    print("Passages: {}".format(PASSAGES))
+                    self.show_dialog = not self.show_dialog
                 if event.key == pg.K_RETURN:
                     self.player.use_closest_object()
 
