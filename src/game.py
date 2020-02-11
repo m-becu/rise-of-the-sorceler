@@ -72,7 +72,7 @@ class Game:
         self.spritesheet = Spritesheet(path.join(self.assets_folder, SPRITESHEET))
 
         self.player_img = self.spritesheet.get_sprite(PLAYER_SPRITE)
-        self.lifebar_img = pg.Surface((TILE_SIZE, TILE_SIZE*3)).convert_alpha()
+        self.lifebar_img = self.spritesheet.get_sprite(HEART_SPRITE)
 
         self.main_font = path.join(self.fonts_folder, MAIN_FONT)
 
@@ -124,6 +124,7 @@ class Game:
 
     def reset_groups(self):
         self.all_sprites    = pg.sprite.LayeredUpdates()
+        self.gui            = pg.sprite.Group()
         self.walls          = pg.sprite.Group()
         self.items          = pg.sprite.Group()
         self.entities       = pg.sprite.Group()
@@ -181,6 +182,7 @@ class Game:
                 if tile_object.name == 'wall':
                     Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 
+        self.lifebar = Lifebar(self, 10, 10)
         self.camera = Camera(self.view.map.width, self.view.map.height)
         self.paused = False
 
@@ -201,6 +203,7 @@ class Game:
     def update(self):
         # Update portion of the game loop
         self.view.all_sprites.update()
+        self.gui.update()
         self.camera.update(self.player)
 
         triggers = pg.sprite.spritecollide(self.player, self.triggers, False, collide_hit_rect)
@@ -300,11 +303,8 @@ class Game:
 
             self.view.screen.blit(box_dialog, (0, HEIGHT * 3/4))
 
-        if self.show_gui:
-            for ui in self.gui:
-                self.view.screen.blit(ui)
-        
         self.screen = self.view.screen
+        self.screen.blit(self.lifebar.image, (10, 10))
         pg.display.flip()
 
     def events(self):
@@ -324,6 +324,8 @@ class Game:
                     print(self.player.inventory)
                 if event.key == pg.K_u:
                     self.show_dialog = not self.show_dialog
+                if event.key == pg.K_v:
+                    self.player.hurt()
                 if event.key == pg.K_RETURN:
                     self.player.use_closest_object()
 
