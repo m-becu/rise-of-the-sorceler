@@ -85,15 +85,40 @@ class Spritesheet:
         return self.tiles[index]
 
 class Lifebar(pg.sprite.Sprite):
-    def __init__(self, game):
+    def __init__(self, game, x, y):
         self.groups = game.gui
         pg.sprite.Sprite.__init__(self, self.groups)
 
         self.game = game
-        heart = self.game.spritesheet.get_sprite(HEART_SPRITE)
-        self.image = self.game.lifebar_img
+        
+        heart = self.game.lifebar_img
+        heart1 = pg.Surface((TILE_SIZE*3, TILE_SIZE), pg.SRCALPHA)
+        heart2 = pg.Surface((TILE_SIZE*3, TILE_SIZE), pg.SRCALPHA)
+        heart3 = pg.Surface((TILE_SIZE*3, TILE_SIZE), pg.SRCALPHA)
 
-        self.rect = self.image.get_rect()
+        self.frames = []
+
+        heart3.blit(heart, (0, 0))
+        heart3.blit(heart, (TILE_SIZE, 0))
+        heart3.blit(heart, (TILE_SIZE*2, 0))
+        self.frames.append(heart3)
+
+        heart2.blit(heart, (0, 0))
+        heart2.blit(heart, (TILE_SIZE, 0))
+        self.frames.append(heart2)
+
+        heart1.blit(heart, (0, 0))
+        self.frames.append(heart1)
+
+        self.image = self.frames[0]
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+    def update(self):
+        lifelevel = abs(self.game.player.health - 3)
+        if lifelevel > len(self.frames) - 1:
+            print("Player is dead")
+        else:
+            self.image = self.frames[lifelevel]
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game, pos):
@@ -112,6 +137,7 @@ class Player(pg.sprite.Sprite):
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
 
+        self.health = 3
         self.inventory = []
 
     def get_keys(self):
@@ -154,6 +180,9 @@ class Player(pg.sprite.Sprite):
     def give(self, inventory):
         for item in inventory:
             self.inventory.append(item)
+
+    def hurt(self, dmg=1):
+        self.health -= dmg
 
     def use_closest_object(self):
         for entity in self.game.entities:
