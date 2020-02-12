@@ -84,6 +84,32 @@ class Spritesheet:
     def get_sprite(self, index):
         return self.tiles[index]
 
+class DialogBox(pg.sprite.Sprite):
+    def __init__(self, game, text, pos):
+        self.groups = game.gui
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+        box_dialog = pg.Surface((WIDTH, HEIGHT/4)).convert_alpha()
+        box_dialog.fill((0, 0, 0, 188))
+
+        font = pg.font.Font(self.game.main_font, 24)
+
+        text_surface = font.render(text, 10, WHITE)
+        text_rect = text_surface.get_rect()
+        text_rect.topleft = (10, 10)
+
+        box_dialog.blit(text_surface, text_rect)
+
+        self.spawn_time = pg.time.get_ticks()
+        
+        self.image = box_dialog
+        self.rect = self.image.get_rect(topleft=(pos[0], pos[1]))
+
+    def update(self):
+        if pg.time.get_ticks() - self.spawn_time > DIALOG_LIFETIME:
+            self.kill()
+
 class Lifebar(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.gui
@@ -302,6 +328,9 @@ class Trigger(pg.sprite.Sprite):
         self.action = TRIGGERS[name]['action']
         if self.action == 'teleport':
             self.destination = TRIGGERS[name]['destination']
+        if self.action == 'event':
+            self.event = TRIGGERS[name]['event']
+            self.called = False
 
         self.rect.x = pos[0]
         self.rect.y = pos[1]
