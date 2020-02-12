@@ -66,6 +66,7 @@ class Game:
         
         self.maps_folder = path.join(self.game_folder, 'maps')
         self.assets_folder = path.join(self.game_folder, 'assets')
+        self.texts_folder = path.join(self.game_folder, 'txt')
         
         self.fonts_folder = path.join(self.assets_folder, 'fonts')
         
@@ -101,6 +102,16 @@ class Game:
             sprite1 = self.spritesheet.get_sprite(ENTITIES[entity]['sprite1'])
             sprite2 = self.spritesheet.get_sprite(ENTITIES[entity]['sprite2'])
             self.entities_images[entity] = (sprite1, sprite2)
+        
+        self.all_texts = []
+        texts = [f for f in listdir(path.join(self.texts_folder)) if path.isfile(path.join(path.join(self.texts_folder), f))]
+        for file in texts:
+            text = ""
+            if '.txt' in file:
+                file_text = open(path.join(self.texts_folder, file), 'r')
+                for line in file_text.readlines():
+                    text += line.strip()
+                self.all_texts.append(text)
 
     def new(self):
         # Initialization and setup
@@ -186,6 +197,13 @@ class Game:
         self.camera = Camera(self.view.map.width, self.view.map.height)
         self.paused = False
 
+    def call_event(self, event):
+        if event == 0:
+            DialogBox(self, self.all_texts[0], (0, HEIGHT * 3/4))
+
+        else:
+            print("No event found.")
+
     def run(self):
         # Game loop
         self.playing = True
@@ -210,6 +228,10 @@ class Game:
         for trigger in triggers:
             if trigger.action == 'teleport':
                 self.travel_to(trigger.destination)
+            if trigger.action == 'event':
+                if not trigger.called:
+                    self.call_event(trigger.event)
+                    trigger.called = True
 
     def travel_to(self, dest):
         dest_map = PASSAGES[dest]['location']
@@ -232,7 +254,7 @@ class Game:
         self.player.vel = vec(0, 0)
         self.player.pos = dest_pos
 
-    def draw_text(self, text, font_name, size, color, x, y, align="nw"):
+    def draw_text(self, text, font_name, size, color, x, y, align="nw", dest=None):
         font = pg.font.Font(font_name, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
@@ -254,7 +276,11 @@ class Game:
             text_rect.midleft = (x, y)
         if align == "center":
             text_rect.center = (x, y)
-        self.screen.blit(text_surface, text_rect)
+        
+        if not dest:
+            self.view.screen.blit(text_surface, text_rect)
+        else:
+            dest.blit(text_surface, text_rect)
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILE_SIZE):
@@ -277,6 +303,12 @@ class Game:
             if self.draw_debug:
                 pg.draw.rect(self.view.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
         
+        for ui in self.gui:
+            if isinstance(ui, Lifebar):
+                self.screen.blit(ui.image, (10, 10))
+            if isinstance(ui, DialogBox):
+                self.screen.blit(ui.image, (0, HEIGHT * 3/4))
+
         if self.draw_debug:
             pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
             
@@ -297,14 +329,7 @@ class Game:
         if self.noclip:
             self.draw_text("NOCLIP", self.main_font, 70, WHITE, WIDTH/10, HEIGHT/10, align='center')
 
-        if self.show_dialog:
-            box_dialog = pg.Surface((WIDTH, HEIGHT/4)).convert_alpha()
-            box_dialog.fill((0, 0, 0, 188))
-
-            self.view.screen.blit(box_dialog, (0, HEIGHT * 3/4))
-
         self.screen = self.view.screen
-        self.screen.blit(self.lifebar.image, (10, 10))
         pg.display.flip()
 
     def events(self):
@@ -322,8 +347,6 @@ class Game:
                     self.paused = not self.paused
                 if event.key == pg.K_i:
                     print(self.player.inventory)
-                if event.key == pg.K_u:
-                    self.show_dialog = not self.show_dialog
                 if event.key == pg.K_v:
                     self.player.hurt()
                 if event.key == pg.K_RETURN:

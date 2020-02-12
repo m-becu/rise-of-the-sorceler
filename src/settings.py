@@ -102,6 +102,10 @@ PASSAGES['from_jail'] = {
 
 # Triggers
 TRIGGERS = {}
+TRIGGERS['jail_event_0'] = {
+    'action': 'event',
+    'event': 0
+}
 TRIGGERS['jail_upstairs'] = {
     'action': 'teleport',
     'destination': 'from_jail'
@@ -130,7 +134,11 @@ PASSAGES_LAYER = 4
 ITEMS_LAYER = 1
 
 # Fonts
-MAIN_FONT = 'kenney_pixel.ttf'
+MAIN_FONT = 'unipix.ttf'
+SECOND_FONT = 'kenney_pixel.ttf'
+
+# Other stuff
+DIALOG_LIFETIME = 2500
 
 # Colors
 WHITE = (255, 255, 255)
